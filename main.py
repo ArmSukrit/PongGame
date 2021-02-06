@@ -33,7 +33,7 @@ class PongGame(Widget):
     ball = ObjectProperty(None)
     player_red = ObjectProperty(None)
     player_blue = ObjectProperty(None)
-    decisive_points = 1  # end the game when a player reaches this point
+    decisive_points = 3  # end the game when a player reaches this point
 
     def serve_ball(self, vel=(4, 0)):
         self.ball.center = self.center
@@ -59,13 +59,17 @@ class PongGame(Widget):
             self.serve_ball(vel=(-4, 0))
 
         # check if game ends
-        # if self.player_red.score >= self.decisive_points:
-        #     self.pause_at_game_end("red")
-        # if self.player_blue.score >= self.decisive_points:
-        #     self.pause_at_game_end("blue")
+        if self.player_red.score == self.decisive_points:
+            self.pause_at_game_end("red")
+        if self.player_blue.score == self.decisive_points:
+            self.pause_at_game_end("blue")
 
-    # def pause_at_game_end(self, winner):
-    #     return EndScreen(winner)
+    def pause_at_game_end(self, winner):
+        self.clear_points()
+
+    def clear_points(self):
+        self.player_blue.score = 0
+        self.player_red.score = 0
 
     def on_touch_move(self, touch):
         if touch.x < self.width / 3:
@@ -74,24 +78,7 @@ class PongGame(Widget):
             self.player_blue.center_y = touch.y
 
 
-# class EndScreen(Widget):
-#     replay_button = ObjectProperty(None)
-
-#     def __init__(self, winner, **kwargs):
-#         super().__init__(**kwargs)
-#         self.winner = winner
-#         self.winner_annouce = f"Player {winner} Wins!"
-
-#         self.add_widget(Label(text=self.winner_annouce,
-#                               top=self.top-50, center_x=self.width/2))
-
-#     def replay_on_press(self):
-#         game = PongGame()
-#         game.serve_ball()
-#         Clock.schedule_interval(game.update, 1.0 / 60.0)
-#         return game
-
-
+# class EndSc
 class PongApp(App):
     def build(self):
         game = PongGame()
