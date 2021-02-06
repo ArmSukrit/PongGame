@@ -5,6 +5,7 @@ from kivy.properties import (
 )
 from kivy.vector import Vector
 from kivy.clock import Clock
+from kivy.uix.label import Label
 
 
 class PongPaddle(Widget):
@@ -30,8 +31,9 @@ class PongBall(Widget):
 
 class PongGame(Widget):
     ball = ObjectProperty(None)
-    player1 = ObjectProperty(None)
-    player2 = ObjectProperty(None)
+    player_red = ObjectProperty(None)
+    player_blue = ObjectProperty(None)
+    decisive_points = 1  # end the game when a player reaches this point
 
     def serve_ball(self, vel=(4, 0)):
         self.ball.center = self.center
@@ -41,8 +43,8 @@ class PongGame(Widget):
         self.ball.move()
 
         # bounce of paddles
-        self.player1.bounce_ball(self.ball)
-        self.player2.bounce_ball(self.ball)
+        self.player_red.bounce_ball(self.ball)
+        self.player_blue.bounce_ball(self.ball)
 
         # bounce ball off bottom or top
         if (self.ball.y < self.y) or (self.ball.top > self.top):
@@ -50,17 +52,44 @@ class PongGame(Widget):
 
         # went of to a side to score point?
         if self.ball.x < self.x:
-            self.player2.score += 1
+            self.player_blue.score += 1
             self.serve_ball(vel=(4, 0))
         if self.ball.x > self.width:
-            self.player1.score += 1
+            self.player_red.score += 1
             self.serve_ball(vel=(-4, 0))
+
+        # check if game ends
+        if self.player_red.score >= self.decisive_points:
+            self.pause_at_game_end("red")
+        if self.player_blue.score >= self.decisive_points:
+            self.pause_at_game_end("blue")
+
+    def pause_at_game_end(self, winner):
+        return EndScreen(winner)
 
     def on_touch_move(self, touch):
         if touch.x < self.width / 3:
-            self.player1.center_y = touch.y
+            self.player_red.center_y = touch.y
         if touch.x > self.width - self.width / 3:
-            self.player2.center_y = touch.y
+            self.player_blue.center_y = touch.y
+
+
+class EndScreen(Widget):
+    replay_button = ObjectProperty(None)
+
+    def __init__(self, winner, **kwargs):
+        super().__init__(**kwargs)
+        self.winner = winner
+        self.winner_annouce = f"Player {winner} Wins!"
+
+        self.add_widget(Label(text=self.winner_annouce,
+                              top=self.top-50, center_x=self.width/2))
+
+    def replay_on_press(self):
+        game = PongGame()
+        game.serve_ball()
+        Clock.schedule_interval(game.update, 1.0 / 60.0)
+        return game
 
 
 class PongApp(App):

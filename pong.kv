@@ -14,10 +14,27 @@
             pos: self.pos
             size: self.size
 
+<EndScreen>:
+    replay_button: replay_button
+
+
+    # Label:
+    #     id: annouce
+    #     text: str(root.winner_annouce)
+    #     top: root.top - 50
+    #     center_x: root.width / 2
+
+    Button:
+        id: replay_button
+        text: "Replay"
+        size: 100, 40
+        on_press: root.replay_on_press
+
+
 <PongGame>:
     ball: pong_ball
-    player1: player_left
-    player2: player_right
+    player_red: player_red
+    player_blue: player_blue
     
     canvas:
         Rectangle:
@@ -28,24 +45,24 @@
         font_size: 70  
         center_x: root.width / 4
         top: root.top - 50
-        text: str(root.player1.score)
+        text: str(root.player_red.score)
         
     Label:
         font_size: 70  
         center_x: root.width * 3 / 4
         top: root.top - 50
-        text: str(root.player2.score)
+        text: str(root.player_blue.score)
     
     PongBall:
         id: pong_ball
         center: self.parent.center
         
     PongPaddle:
-        id: player_left
+        id: player_red
         x: root.x
         center_y: root.center_y
         
     PongPaddle:
-        id: player_right
+        id: player_blue
         x: root.width - self.width
         center_y: root.center_y
